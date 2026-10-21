@@ -1,32 +1,39 @@
 #include <MeMCore.h>
+
+//MOTOR
 MeDCMotor leftMotor(M1); // assigning leftMotor to port M1
 MeDCMotor rightMotor(M2); // assigning RightMotor to port M2
-MeLineFollower lineFinder(PORT_1); //assigning lineFinder to port 1
-
-MeUltrasonicSensor ultrasonic(PORT_2); //assigning ultrasonic to port 2
-#define ULTRASONIC 12
-#define ultrasonicMin 1.0 //min reading for ultrasonic sensor
-#define ultrasonicMax 18.0  //max reading for ultrasonic sensor
-
-
 #define motorStopLeft 0
 #define motorStopRight 0
 #define motorForwardLeft -200
-#define motorForwardRight 205
+#define motorForwardRight 210
 #define motorReverseLeft 125
 #define motorReverseRight -120
 #define motorNudgeSpeed 150
 
-#define turnLeftTime 640
+#define turnLeftTime 620
 #define turnRightTime 620
-#define nudgeTime 100
+#define nudgeTime 300
 #define motorStopTime 300
 
+//LINE FINDER
+MeLineFollower lineFinder(PORT_1); //assigning lineFinder to port 1
+
+//ULTRASONIC SENSOR
+MeUltrasonicSensor ultrasonic(PORT_2); //assigning ultrasonic to port 2
+#define ultrasonicMin 1.0 //min reading for ultrasonic sensor
+#define ultrasonicMax 18.0  //max reading for ultrasonic sensor
+
+#define tooCloseLeft 7
+
+//LED/LDR/IR 
+#define DecoderA A3
+#define DecoderB A2
 
 
 void celebrate() {}// Code for playing celebratory tune}
 
-/*MOTOR CODE START*/
+/*MOTOR CODE*/
 void stopMotor() {// Code for stopping motor
 leftMotor.stop(); // Stop left motor
 rightMotor.stop(); // Stop right motor
@@ -61,18 +68,50 @@ void nudgeRight() { // Code for nudging slightly to the right for some short int
   leftMotor.run(motorForwardLeft);
   rightMotor.run(motorNudgeSpeed);
   delay(nudgeTime);
-  stopMotor();
 }
+/*LED/LDR/IR CODE*/
+/*H
+* Decoder Truth Table:
+* B | A | Y0 | Y1 | Y2 | Y3 
+* L   L   L    H    H    H
+* L   H   H    L    H    H
+* H   L   H    H    L    H
+* H   H   H    H    H    L 
 
-/*MOTOR CODE STOP*/
+* Y0 is IR 
+* Y1 is R
+* Y2 is G
+* Y3 is B
 
+* A2 is B
+* A3 is A
+*/
 
-void shineIR() {}// Code for turning on the IR emitter only}
-void shineRed() {}// Code for turning on the red LED only}
+void shineIR() {// Code for turning on the IR emitter only
+    digitalWrite(DecoderA, LOW);
+    digitalWrite(DecoderB, LOW);
+}
+void shineRed() {// Code for turning on the red LED only
+    digitalWrite(DecoderA, LOW);
+    digitalWrite(DecoderB, HIGH);
+}
 void shineGreen() {}// Code for turning on the green LED only}
 void shineBlue() {}// Code for turning on the blue LED only}
 
-bool lineSensor(){
+float rightDistance(){ // Code for using IR circuit
+  int ambient_reading = 0; 
+  int reading = 0;
+  shineRed(); // Turn off the IR emitter
+  delay(100);
+  //from here we read what the detector is getting and add it to ambient reading
+  //can find the mean ambient reading also
+  //then we on the IR emitter
+  //read what the detector is getting and add it to reading
+  //can find the mean reading 
+  //find the result which is ambient - reading
+  //need to scale it??
+}
+bool lineSensor(){ //Code for using the line finder
   return (lineFinder.readSensors() == S1_IN_S2_IN);
   //return true if detected black
 }
@@ -85,8 +124,7 @@ int detectColour()
 // Run algorithm for colour decoding
 }
 
-float leftDistance(){
-
+float leftDistance(){ //Code for using the ultrasonic sensor
   float a = ultrasonic.distanceCm();
   delay(20);
   float b = ultrasonic.distanceCm();
@@ -107,9 +145,24 @@ digitalWrite(A3, LOW);
 pinMode(A2, OUTPUT);
 digitalWrite(A2, HIGH);
 delay(1000);
+Serial.begin(9600);
 }
 
 void loop(){
+//for next week checkpoint
+moveForward();
+
+if (lineSensor()){
+    stopMotor();
+    turnLeft();
+  }
+  
+float leftDist = leftDistance();
+if (leftDist < tooCloseLeft){
+  nudgeRight();
+}
+
+/*
   //checking ultrasonic distance
   bool ultrasonicIsGood = true;
   float leftDist = leftDistance();
@@ -135,8 +188,7 @@ void loop(){
   else {
     moveForward();
   }
-  }
-
+*/
 }
 // Read ultrasonic sensing distance (choose an appropriate timeout)
 // Read IR sensing distance (turn off IR, read IR detector, turn on IR, read IR detector, estimate distance)
@@ -145,5 +197,7 @@ void loop(){
 // 	else if too near to right wall, nudge left
 // 	else move forward
 
-
+// debug ultrasonic sensor
+// add Serial.begin(9600); in setup
+// Serial.print("Ultrasonic Reading: "); Serial.println(leftDist, 3); in loop
 
