@@ -66,14 +66,14 @@ void moveForward() {// Code for moving forward for some short interval}
 void turnRight() {// Code for turning right 90 deg}
   leftMotor.run(-MOTOR_SPEED);
   rightMotor.run(-MOTOR_SPEED);
-  delay(TURN_TIME);
+  delay(TURN_TIMERight);
   stopMotor();
 
 }
 void turnLeft() {// Code for turning left 90 deg}
   leftMotor.run(MOTOR_SPEED);
   rightMotor.run(MOTOR_SPEED);
-  delay(TURN_TIME);
+  delay(TURN_TIMELeft);
   stopMotor();
 }
 void uTurn() {// Code for u-turn}
@@ -199,14 +199,15 @@ int detectColour()
   float green = normaliseReading(greenReading,black_arr[1],white_arr[1]);
   
   #ifdef SERIAL_DEBUG
-    Serial.print("Red: ")
+    Serial.print("Red: ");
     Serial.println(red);
-    Serial.print("Green: ")
+    Serial.print("Green: ");
     Serial.println(green);
-    Serial.print("Blue: ")
+    Serial.print("Blue: ");
     Serial.println(blue);
   #endif
 
+  // code for returning detected colour
   if ()
 
 
@@ -219,13 +220,13 @@ void instructions(){
   int Colour=detectColour;
   if (Colour ==1){// red paper : left turn
     turnLeft();
-  } else if (Colour==2){// green paper
+  } else if (Colour==2){// green paper : right turn
     turnRight();
-  } else if (Colour==3){// orange paper
+  } else if (Colour==3){// orange paper:uturn
     uTurn();
-  } else if (Colour==4){// pink paper
+  } else if (Colour==4){// pink paper: double left turn
     doubleLeftTurn();
-  } else if (Colour==5){// light blue paper
+  } else if (Colour==5){// light blue paper : double right turn
     doubleRightTurn();
   } else if (Colour==6){// white paper
     stopMotor();
