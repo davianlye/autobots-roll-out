@@ -168,7 +168,7 @@ float rightDistance(){ // Code for using IR circuit
     delay(irDelay);
   }
   reading /= irNumReading;
-  return ambientReading - reading;
+  return reading - ambientReading;
   //from here we read what the detector is getting and add it to ambient reading
   //can find the mean ambient reading also
   //then we on the IR emitter
