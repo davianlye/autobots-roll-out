@@ -31,6 +31,10 @@ MeUltrasonicSensor ultrasonic(PORT_2); //assigning ultrasonic to port 2
 #define DecoderA A3
 #define DecoderB A2
 
+#define irPin A0
+#define irDelay 5
+#define irNumReading 3
+
 
 void celebrate() {}// Code for playing celebratory tune}
 
@@ -101,7 +105,12 @@ void doubleRightTurn() {// Code for double right turn
   turnRight();
 }
 
-void nudgeLeft() {}// Code for nudging slightly to the left for some short interval}
+void nudgeLeft() { // Code for nudging slightly to the left for some short interval
+  leftMotor.run(-motorNudgeSpeed);
+  rightMotor.run(motorForwardRight);
+  delay(nudgeTime);
+}
+
 void nudgeRight() { // Code for nudging slightly to the right for some short interval}
   leftMotor.run(motorForwardLeft);
   rightMotor.run(motorNudgeSpeed);
@@ -133,14 +142,33 @@ void shineRed() {// Code for turning on the red LED only
     digitalWrite(DecoderA, LOW);
     digitalWrite(DecoderB, HIGH);
 }
-void shineGreen() {}// Code for turning on the green LED only}
-void shineBlue() {}// Code for turning on the blue LED only}
+void shineGreen() {
+    digitalWrite(DecoderA, HIGH);
+    digitalWrite(DecoderB, LOW);
+}// Code for turning on the green LED only}
+void shineBlue() {
+    digitalWrite(DecoderA, HIGH);
+    digitalWrite(DecoderB, HIGH);
+}// Code for turning on the blue LED only}
 
 float rightDistance(){ // Code for using IR circuit
-  int ambient_reading = 0; 
+  int ambientReading = 0; 
   int reading = 0;
   shineRed(); // Turn off the IR emitter
-  delay(100);
+  delay(irDelay);
+  for (int i = 0; i < irNumReading; i++){
+    ambientReading += analogRead(irPin);
+    delay(irDelay);
+  }
+  ambientReading /= irNumReading;
+  shineIR();
+  delay(irDelay);
+  for (int i = 0; i < irNumReading; i++){
+    reading += analogRead(irPin);
+    delay(irDelay);
+  }
+  reading /= irNumReading;
+  return ambientReading - reading;
   //from here we read what the detector is getting and add it to ambient reading
   //can find the mean ambient reading also
   //then we on the IR emitter
