@@ -26,6 +26,7 @@ MeUltrasonicSensor ultrasonic(PORT_2); //assigning ultrasonic to port 2
 #define ultrasonicMax 18.0  //max reading for ultrasonic sensor
 
 #define tooCloseLeft 7
+#define tooCloseRight -600
 
 //LED/LDR/IR 
 #define DecoderA A3
@@ -229,11 +230,22 @@ if (lineSensor()){
     stopMotor();
     turnLeft();
   }
+  //IR and Ultrasonic sensor
+  float left  = leftDistance();
+  float right = rightDistance();
+
+  Serial.print("Left: ");  
   
-float leftDist = leftDistance();
-if (leftDist < tooCloseLeft){
-  nudgeRight();
-}
+  Serial.print(left);
+  Serial.print(" cm | IR: "); Serial.println(right);
+
+  if (left < tooCloseLeft) {
+    nudgeRight();
+  } else if (right < tooCloseRight) {
+    nudgeLeft();
+  } else {
+    moveForward();
+  }
 
 /*
   //checking ultrasonic distance
