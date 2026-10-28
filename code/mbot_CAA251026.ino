@@ -143,7 +143,7 @@ void doubleLeftTurn() { // Code for double left turn
 void doubleRightTurn() {// Code for double right turn
   turnRight();
   moveForward();
-  delya(doubleTurnTime);
+  delay(doubleTurnTime);
   turnRight();
 }
 
