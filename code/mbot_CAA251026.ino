@@ -39,20 +39,43 @@ MeUltrasonicSensor ultrasonic(PORT_2); //assigning ultrasonic to port 2
 //BUZZER
 MeBuzzer buzzer;
 #define NOTE_C4   262
+#define NOTE_D4   294
 #define NOTE_EB4  311
-#define beatMs 214   // 60000 / 140 / 2
+#define NOTE_F4   349
+#define NOTE_G4   392
+#define NOTE_BB4  466
+#define REST        0
 
-const int notes[] = {NOTE_EB4, NOTE_EB4, NOTE_C4, NOTE_C4,
-                       NOTE_EB4, NOTE_EB4, NOTE_C4, NOTE_C4};
+#define beatMs 200   // smaller = faster
+
+const int melody[] = {
+  // line 1
+  NOTE_G4, NOTE_F4, NOTE_G4, NOTE_BB4, NOTE_F4, NOTE_EB4, NOTE_D4, REST,
+  // line 2
+  NOTE_F4, NOTE_F4, NOTE_D4, NOTE_C4, REST,
+  // line 3
+  NOTE_G4, NOTE_F4, NOTE_G4, NOTE_BB4, NOTE_F4, NOTE_EB4, NOTE_D4,
+  NOTE_F4, NOTE_D4, NOTE_C4, NOTE_G4
+};
+
+const int beats[] = {
+  1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1
+};
+
+const int numNotes = sizeof(melody) / sizeof(melody[0]);
 
 void celebrate() {
   stopMotor();
   delay(200);
-  for (int bar = 0; bar < 4; bar++) {
-    for (int i = 0; i < 8; i++) {
-      buzzer.tone(notes[i], beatMs * 0.9);
-      delay(beatMs);
+  for (int i = 0; i < numNotes; i++) {
+    int dur = beats[i] * beatMs;
+    if (melody[i] != REST) {
+      buzzer.tone(melody[i], dur * 0.9);
     }
+    delay(dur);
   }
   buzzer.noTone();
 }
