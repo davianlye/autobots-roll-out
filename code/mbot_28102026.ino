@@ -38,7 +38,7 @@ MeUltrasonicSensor ultrasonic(PORT_2); //assigning ultrasonic to port 2
 #define ldrPin A1
 
 // Calibration: index 0 = R, 1 = G, 2 = B (fill these in during calibration)
-int white_arr[3] = {968, 995, 982};
+/*int white_arr[3] = {968, 995, 982};
 int black_arr[3] = {916, 940, 875};
 
 // Reference normalised (R,G,B) for each paper, in the same order as the colour numbers.
@@ -51,6 +51,16 @@ const float REF[6][3] = {
   {0.75, 0.69, 0.82},  // Pink
   {0.22, 0.58, 0.82},  // Light blue
   {0.73, 0.77, 0.89}  // White
+};*/
+int white_arr[3] = {974, 993, 983};
+int black_arr[3] = {931, 923, 848};
+const float REF[6][3] = {
+  {0.94, 0.47, 0.59},  // Red
+  {0.52, 0.87, 0.79},  // Green
+  {0.92, 0.66, 0.54},  // Orange
+  {1.00, 0.91, 0.94},  // Pink
+  {0.37, 0.77, 0.92},  // Light blue
+  {0.89, 0.94, 0.97}  // White
 };
 const float MAX_DISTANCE = 0.45;  // bigger than this = "unknown"
 
