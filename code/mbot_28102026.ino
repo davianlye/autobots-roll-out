@@ -191,6 +191,12 @@ void nudgeRight() { // Code for nudging slightly to the right for some short int
   delay(nudgeTime);
 }
 
+bool lineSensor(){ //Code for using the line finder
+  return (lineFinder.readSensors() == S1_IN_S2_IN);
+  //return true if detected black
+}
+
+//LDR LED CODE
 long colourReading() {
   delay(ledSettleTime);                 // let LED and LDR settle
   long total = 0;
