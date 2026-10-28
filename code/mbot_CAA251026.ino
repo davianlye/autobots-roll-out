@@ -36,8 +36,26 @@ MeUltrasonicSensor ultrasonic(PORT_2); //assigning ultrasonic to port 2
 #define irDelay 5
 #define irNumReading 3
 
+//BUZZER
+MeBuzzer buzzer;
+#define NOTE_C4   262
+#define NOTE_EB4  311
+#define beatMs 214   // 60000 / 140 / 2
 
-void celebrate() {}// Code for playing celebratory tune}
+const int notes[] = {NOTE_EB4, NOTE_EB4, NOTE_C4, NOTE_C4,
+                       NOTE_EB4, NOTE_EB4, NOTE_C4, NOTE_C4};
+
+void celebrate() {
+  stopMotor();
+  delay(200);
+  for (int bar = 0; bar < 4; bar++) {
+    for (int i = 0; i < 8; i++) {
+      buzzer.tone(notes[i], beatMs * 0.9);
+      delay(beatMs);
+    }
+  }
+  buzzer.noTone();
+}
 
 /*MOTOR CODE*/
 void stopMotor() {// Code for stopping motor
