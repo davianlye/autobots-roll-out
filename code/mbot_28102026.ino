@@ -72,25 +72,56 @@ void shineBlue()  {
   digitalWrite(DecoderA, HIGH); 
   digitalWrite(DecoderB, HIGH); 
   }
+//BUZZER
 MeBuzzer buzzer;
 #define NOTE_C4   262
+#define NOTE_D4   294
 #define NOTE_EB4  311
-#define beatMs 214   // 60000 / 140 / 2
+#define NOTE_F4   349
+#define NOTE_G4   392
+#define NOTE_BB4  466
+#define REST        0
 
-const int notes[] = {NOTE_EB4, NOTE_EB4, NOTE_C4, NOTE_C4,
-                       NOTE_EB4, NOTE_EB4, NOTE_C4, NOTE_C4};
+#define beatMs 200   // smaller = faster
+
+const int melody[] = {
+  // line 1
+  NOTE_G4, NOTE_F4, NOTE_G4, NOTE_BB4, NOTE_F4, NOTE_EB4, NOTE_D4,
+  // line 2
+  NOTE_F4, NOTE_F4, NOTE_D4, NOTE_C4, NOTE_D4, NOTE_C4, NOTE_BB4,
+  // line 3
+  NOTE_G4, NOTE_F4, NOTE_G4, NOTE_BB4, NOTE_F4, NOTE_EB4, NOTE_D4, NOTE_F4,
+  // line 4
+  NOTE_D4, NOTE_C4, NOTE_G4
+};
+
+const float beats[] = {
+  // line 1
+  1, 0.5, 0.5, 1, 0.5, 0.5, 1.5,
+  // line 2
+  0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.5,
+  // line 3
+  1, 0.5, 0.5, 1, 0.5, 0.5, 1, 0.5,
+  // line 4
+  0.5, 1, 2
+};
+
+const int numNotes = sizeof(melody) / sizeof(melody[0]);
 
 void celebrate() {
   stopMotor();
   delay(200);
-  for (int bar = 0; bar < 4; bar++) {
-    for (int i = 0; i < 8; i++) {
-      buzzer.tone(notes[i], beatMs * 0.9);
-      delay(beatMs);
+  for (int i = 0; i < numNotes; i++) {
+    int dur = beats[i] * beatMs;
+    if (melody[i] != REST) {
+      buzzer.tone(melody[i], dur * 0.9);
     }
+    delay(dur);
   }
   buzzer.noTone();
 }
+
+// MOTOR CODE
   void stopMotor() {// Code for stopping motor
   leftMotor.stop(); // Stop left motor
   rightMotor.stop(); // Stop right motor
@@ -118,28 +149,9 @@ void turnLeft() { // Code for turning left 90 deg
 }
 
 void uTurn() { // Code for u-turn
-  //slight reverse
-  leftMotor.run(motorReverseLeft);
-  rightMotor.run(motorReverseRight);
-  delay(100);
-  stopMotor();
-
-  //slight turn towards left
   leftMotor.run(motorReverseLeft);
   rightMotor.run(motorForwardRight);
-  delay(turnLeftTime/2);
-  stopMotor();
-
-  //slight reverse to make turn
-  leftMotor.run(motorReverseLeft);
-  rightMotor.run(motorReverseRight);
-  delay(200);
-  stopMotor();
-
-  //complete turn from earlier
-  leftMotor.run(motorReverseLeft);
-  rightMotor.run(motorForwardRight);
-  delay(turnLeftTime + 150); //timing to calibrate 
+  delay(turnLeftTime);
   stopMotor();
 }
 
