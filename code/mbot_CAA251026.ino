@@ -231,21 +231,29 @@ if (lineSensor()){
     turnLeft();
   }
   //IR and Ultrasonic sensor
-  float left  = leftDistance();
+ float left  = leftDistance();
   float right = rightDistance();
 
-  Serial.print("Left: ");  
-  
-  Serial.print(left);
+  Serial.print("Left: ");  Serial.print(left);
   Serial.print(" cm | IR: "); Serial.println(right);
 
   if (left < tooCloseLeft) {
+    led.setColor(0, 255, 0, 0);
+    led.show();
     nudgeRight();
-  } else if (right < tooCloseRight) {
+  } else if (right < irTooClose) {
+    led.setColor(0, 0, 255, 0);
+     led.show();
+
     nudgeLeft();
+
   } else {
+    led.setColor(0, 0, 0, 0); 
+     led.show();
+
     moveForward();
   }
+}
 
 /*
   //checking ultrasonic distance
