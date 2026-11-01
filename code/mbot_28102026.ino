@@ -2,7 +2,6 @@
 
 MeDCMotor leftMotor(M1); // assigning leftMotor to port M1
 MeDCMotor rightMotor(M2); // assigning RightMotor to port M2
-MeLineFollower lineFinder(PORT_1);
 #define motorStopLeft 0
 #define motorStopRight 0
 #define motorForwardLeft -200
@@ -37,6 +36,11 @@ MeUltrasonicSensor ultrasonic(PORT_2); //assigning ultrasonic to port 2
 #define ledSettleTime 100
 #define ldrPin A1
 
+MeLineFollower lineFinder(PORT_1);
+#define lineNumReading 3
+#define lineDelay 5
+#define REQUIRE_BOTH_SENSORS true
+
 // Calibration: index 0 = R, 1 = G, 2 = B (fill these in during calibration)
 /*int white_arr[3] = {968, 995, 982};
 int black_arr[3] = {916, 940, 875};
@@ -52,6 +56,7 @@ const float REF[6][3] = {
   {0.22, 0.58, 0.82},  // Light blue
   {0.73, 0.77, 0.89}  // White
 };*/
+
 int white_arr[3] = {974, 993, 983};
 int black_arr[3] = {931, 923, 848};
 const float REF[6][3] = {
@@ -82,56 +87,25 @@ void shineBlue()  {
   digitalWrite(DecoderA, HIGH); 
   digitalWrite(DecoderB, HIGH); 
   }
-//BUZZER
 MeBuzzer buzzer;
 #define NOTE_C4   262
-#define NOTE_D4   294
 #define NOTE_EB4  311
-#define NOTE_F4   349
-#define NOTE_G4   392
-#define NOTE_BB4  466
-#define REST        0
+#define beatMs 214   // 60000 / 140 / 2
 
-#define beatMs 200   // smaller = faster
-
-const int melody[] = {
-  // line 1
-  NOTE_G4, NOTE_F4, NOTE_G4, NOTE_BB4, NOTE_F4, NOTE_EB4, NOTE_D4,
-  // line 2
-  NOTE_F4, NOTE_F4, NOTE_D4, NOTE_C4, NOTE_D4, NOTE_C4, NOTE_BB4,
-  // line 3
-  NOTE_G4, NOTE_F4, NOTE_G4, NOTE_BB4, NOTE_F4, NOTE_EB4, NOTE_D4, NOTE_F4,
-  // line 4
-  NOTE_D4, NOTE_C4, NOTE_G4
-};
-
-const float beats[] = {
-  // line 1
-  1, 0.5, 0.5, 1, 0.5, 0.5, 1.5,
-  // line 2
-  0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.5,
-  // line 3
-  1, 0.5, 0.5, 1, 0.5, 0.5, 1, 0.5,
-  // line 4
-  0.5, 1, 2
-};
-
-const int numNotes = sizeof(melody) / sizeof(melody[0]);
+const int notes[] = {NOTE_EB4, NOTE_EB4, NOTE_C4, NOTE_C4,
+                       NOTE_EB4, NOTE_EB4, NOTE_C4, NOTE_C4};
 
 void celebrate() {
   stopMotor();
   delay(200);
-  for (int i = 0; i < numNotes; i++) {
-    int dur = beats[i] * beatMs;
-    if (melody[i] != REST) {
-      buzzer.tone(melody[i], dur * 0.9);
+  for (int bar = 0; bar < 4; bar++) {
+    for (int i = 0; i < 8; i++) {
+      buzzer.tone(notes[i], beatMs * 0.9);
+      delay(beatMs);
     }
-    delay(dur);
   }
   buzzer.noTone();
 }
-
-// MOTOR CODE
   void stopMotor() {// Code for stopping motor
   leftMotor.stop(); // Stop left motor
   rightMotor.stop(); // Stop right motor
@@ -159,9 +133,28 @@ void turnLeft() { // Code for turning left 90 deg
 }
 
 void uTurn() { // Code for u-turn
+  //slight reverse
+  leftMotor.run(motorReverseLeft);
+  rightMotor.run(motorReverseRight);
+  delay(100);
+  stopMotor();
+
+  //slight turn towards left
   leftMotor.run(motorReverseLeft);
   rightMotor.run(motorForwardRight);
-  delay(turnLeftTime);
+  delay(turnLeftTime/2);
+  stopMotor();
+
+  //slight reverse to make turn
+  leftMotor.run(motorReverseLeft);
+  rightMotor.run(motorReverseRight);
+  delay(200);
+  stopMotor();
+
+  //complete turn from earlier
+  leftMotor.run(motorReverseLeft);
+  rightMotor.run(motorForwardRight);
+  delay(turnLeftTime + 150); //timing to calibrate 
   stopMotor();
 }
 
@@ -191,20 +184,14 @@ void nudgeRight() { // Code for nudging slightly to the right for some short int
   delay(nudgeTime);
 }
 
-bool lineSensor(){ //Code for using the line finder
-  return (lineFinder.readSensors() == S1_IN_S2_IN);
-  //return true if detected black
-}
-
-//LDR LED CODE
 long colourReading() {
   delay(ledSettleTime);                 // let LED and LDR settle
   long total = 0;
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 10; i++) {
     total += analogRead(ldrPin);
     delay(5);
   }
-  return total / 5;                     // average of 5 readings
+  return total / 10;                     // average of 5 readings
 }
 
 float normaliseReading(int reading, int blackReading, int whiteReading) {
@@ -277,6 +264,7 @@ void instructions(int colour) {
   else if (colour == 6) { stopMotor(); celebrate(); }  // white
   else Serial.println("Error");
 }
+
 float rightDistance(){ // Code for using IR circuit
   int ambientReading = 0; 
   int reading = 0;
@@ -310,7 +298,33 @@ float leftDistance(){ //Code for using the ultrasonic sensor
   return c;
   //returns median
 }
+bool onBlackMarker = false;
 bool markerHandled = false;
+
+bool lineSensor() { // true if black detected (majority of a few quick reads)
+  int hits = 0;
+  for (int i = 0; i < lineNumReading; i++) {
+    int s = lineFinder.readSensors();
+#if REQUIRE_BOTH_SENSORS
+    if (s == S1_IN_S2_IN) hits++;
+#else
+    if (s != S1_OUT_S2_OUT) hits++;   // either sensor sees black
+#endif
+    delay(lineDelay);
+  }
+  return hits >= 2;
+}
+void checkLine() {
+  onBlackMarker = lineSensor();
+  if (onBlackMarker && !markerHandled) {
+    stopMotor();
+    delay(100);
+    instructions(detectColour());
+    markerHandled = true;
+  } else if (!onBlackMarker) {
+    markerHandled = false;
+  }
+}
 void setup()
 {
 // Configure pinMode for A0, A1, A2, A3
@@ -323,16 +337,8 @@ digitalWrite(DecoderB, 0);// initialise decoder B to 0
 
 }
 
-void loop(){  int sensorState =lineFinder.readSensors();
-  bool onBlackMarker = (sensorState == S1_IN_S2_IN);
-  if (onBlackMarker && !markerHandled){
-    stopMotor();
-    delay(100);
-    instructions(detectColour());
-    markerHandled = true;
-  } else if (!onBlackMarker){
-    markerHandled = false;
-  }
+void loop(){  
+ checkLine();
   float left  = leftDistance();
   float right = rightDistance();
 
@@ -340,20 +346,19 @@ void loop(){  int sensorState =lineFinder.readSensors();
   Serial.print(" cm | IR: "); Serial.println(right);
 
   if (left < tooCloseLeft) {
-    led.setColor(128, 0, 255, 0);
+    led.setColor(0, 128, 0, 255); //set led to purple if too close to left wall
     led.show();
     nudgeRight();
     
   } else if (right < irTooClose) {
-    led.setColor(255, 255, 0, 0);
+    led.setColor(0,0, 0, 120); //set led to dark blue if too close to right wall
     led.show();
     nudgeLeft();
     
 
   } else {
-    led.setColor(0, 0, 0, 0); 
-     led.show();
-
+    led.setColor(0, 0, 0, 0); //led shows no colour
+    led.show();
     moveForward();
 }
 
