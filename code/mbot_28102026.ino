@@ -41,10 +41,6 @@ MeLineFollower lineFinder(PORT_1);
 #define lineDelay 5
 #define REQUIRE_BOTH_SENSORS true
 
-#define SERIAL_DEBUG_COLOUR false   // print normalised R,G,B + distance when a colour is read (use for recalibrating REF)
-#define SERIAL_DEBUG_WALLS  false   // print left/IR values (rate-limited)
-#define WALL_PRINT_INTERVAL 300     // ms between wall debug prints
-
 // Calibration: index 0 = R, 1 = G, 2 = B (fill these in during calibration)
 /*int white_arr[3] = {968, 995, 982};
 int black_arr[3] = {916, 940, 875};
@@ -179,13 +175,13 @@ void doubleRightTurn() {// Code for double right turn
 void nudgeLeft() { // Code for nudging slightly to the left for some short interval
   leftMotor.run(-motorNudgeSpeed);
   rightMotor.run(motorForwardRight);
-    waitWatchingLine(350);
+  delay(350);
 }
 
 void nudgeRight() { // Code for nudging slightly to the right for some short interval}
   leftMotor.run(motorForwardLeft);
   rightMotor.run(motorNudgeSpeed);
-  waitWatchingLine(nudgeTime);
+  delay(nudgeTime);
 }
 
 long colourReading() {
@@ -305,21 +301,11 @@ float leftDistance(){ //Code for using the ultrasonic sensor
   return c;
   //returns median
 }
+
 bool onBlackMarker = false;
 bool markerHandled = false;
 
-// Quick single read, used inside the nudges
-bool lineSeenQuick() {
-  int s = lineFinder.readSensors();
-#if REQUIRE_BOTH_SENSORS
-  return (s == S1_IN_S2_IN);
-#else
-  return (s != S1_OUT_S2_OUT);
-#endif
-}
-
-// Majority vote of a few quick reads: true if black is detected
-bool lineSensor() {
+bool lineSensor() { // true if black detected (majority of a few quick reads)
   int hits = 0;
   for (int i = 0; i < lineNumReading; i++) {
     int s = lineFinder.readSensors();
@@ -332,8 +318,6 @@ bool lineSensor() {
   }
   return hits >= 2;
 }
-
-// Stop on a new black marker, read the colour, act on it, and only re-arm once off the black
 void checkLine() {
   onBlackMarker = lineSensor();
   if (onBlackMarker && !markerHandled) {
