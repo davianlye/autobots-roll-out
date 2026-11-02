@@ -179,13 +179,13 @@ void doubleRightTurn() {// Code for double right turn
 void nudgeLeft() { // Code for nudging slightly to the left for some short interval
   leftMotor.run(-motorNudgeSpeed);
   rightMotor.run(motorForwardRight);
-  delay(350);
+    waitWatchingLine(350);
 }
 
 void nudgeRight() { // Code for nudging slightly to the right for some short interval}
   leftMotor.run(motorForwardLeft);
   rightMotor.run(motorNudgeSpeed);
-  delay(nudgeTime);
+  waitWatchingLine(nudgeTime);
 }
 
 long colourReading() {
