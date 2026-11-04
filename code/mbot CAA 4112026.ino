@@ -73,14 +73,14 @@ bool lineSeen = false;
 // Raw {shineRed, shineGreen, shineBlue} readings for each paper (paste lines from colour_test_avg).
 // The code normalises these itself using BLACK_REF and the WHITE row below.
 const int RAW_REF[6][3] = {
-  {560, 882, 518},  // 1 Red
-  {746, 770, 610},  // 2 Green
-  {672, 893, 540},  // 3 Orange
-  {758, 894, 702},  // 4 Pink
-  {724, 737, 705},  // 5 Light blue   <-- SAME AS PINK! Re-measure light blue and paste here
-  {812, 891, 751}   // 6 White (also used as the "1" for normalising)
+  {551, 866, 514},  // 1 Red
+  {738, 748, 610},  // 2 Green
+  {657, 883, 527},  // 3 Orange
+  {758, 887, 697},  // 4 Pink
+  {724, 720, 705},  // 5 Light blue
+  {806, 876, 742}  // 6 White
 };
-const int BLACK_REF[3] = {397, 525, 340};  // black paper (the "0" for normalising)
+const int BLACK_REF[3] = {377, 525, 338};  // black paper (the "0" for normalising)
 
 // Ratio tie-breaker splits (use raw values; calculated automatically from RAW_REF)
 const float redOrangeSplit = ((float)RAW_REF[0][0] / RAW_REF[0][1] + (float)RAW_REF[2][0] / RAW_REF[2][1]) / 2;
