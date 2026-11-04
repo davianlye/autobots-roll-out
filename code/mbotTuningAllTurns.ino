@@ -22,7 +22,7 @@ MeDCMotor rightMotor(M2);
 // 3 = U-turn
 // 4 = two left turns, one grid apart
 // 5 = two right turns, one grid apart
-#define TEST_TURN 1
+#define TEST_TURN 5
 
 void stopMotor() {
   leftMotor.stop();
@@ -72,7 +72,7 @@ void uTurn() {
 void twoLeftTurns() {
   turnLeft();
   moveForward();
-  delay(gridTime + 100);
+  delay(gridTime + 700);
   stopMotor();
   turnLeft();
 }
@@ -80,7 +80,7 @@ void twoLeftTurns() {
 void twoRightTurns() {
   turnRight();
   moveForward2Rights();
-  delay(gridTime + 100);
+  delay(gridTime + 450);
   stopMotor();
   turnRightV2();
 }
