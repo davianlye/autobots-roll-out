@@ -44,7 +44,7 @@ bool lineSeen = false;
 // Raw {shineRed, shineGreen, shineBlue} readings for each paper
 // The code normalises these itself using BLACK_REF and the WHITE row below.
 const int RAW_REF[6][3] = {
-  {532, 854, 344},  // 1 Red
+  {432, 854, 344},  // 1 Red
   {726, 729, 533},  // 2 Green
   {642, 868, 466},  // 3 Orange
   {742, 876, 629},  // 4 Pink
