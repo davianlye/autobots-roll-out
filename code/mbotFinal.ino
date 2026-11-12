@@ -22,12 +22,7 @@ MeRGBLed led(7, 2);
 //ULTRASONIC SENSOR
 MeUltrasonicSensor ultrasonic(PORT_2);
 #define ultrasonicMin 1   // min valid reading (filters out failed 0 readings)
-#define ultrasonicMax 17  // above this = no left wall
-
 #define tooCloseLeft 8.0
-#define irTooClose -125
-
-
 
 // BLACK LINE STATE
 bool markerHandled = false;
@@ -40,6 +35,7 @@ bool lineSeen = false;
 #define irPin A0
 #define irDelay 5
 #define irNumReading 3
+#define irTooClose -125
 #define ledSettleTime 100
 #define ldrPin A1
 #define COLOUR_SAMPLES 1        // readings averaged per marker (3 = more stable, ~1 s slower per marker)
