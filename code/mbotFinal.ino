@@ -255,7 +255,6 @@ int detectColour() {
   Serial.print("Nearest: "); Serial.print(NAMES[best]);
   Serial.print(" ("); Serial.print(bestDist, 2); Serial.print("), runner-up: ");
   Serial.print(NAMES[second]); Serial.print(" ("); Serial.print(secondDist, 2); Serial.println(")");
-  int nearest = best;
 #endif
 
   return best;
